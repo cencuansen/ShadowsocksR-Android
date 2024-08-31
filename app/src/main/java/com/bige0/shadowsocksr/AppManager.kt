@@ -4,6 +4,7 @@ import android.*
 import android.app.*
 import android.content.*
 import android.content.pm.*
+import android.Manifest
 import android.graphics.drawable.*
 import android.os.*
 import android.view.*
@@ -15,6 +16,7 @@ import com.bige0.shadowsocksr.database.*
 import com.bige0.shadowsocksr.utils.*
 import java.util.*
 import java.util.concurrent.atomic.*
+import androidx.appcompat.widget.SearchView
 
 class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 {
@@ -24,11 +26,13 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 	private var proxiedApps = HashSet<String>()
 	private lateinit var toolbar: Toolbar
 	private lateinit var bypassSwitch: Switch
+	private lateinit var searchView: SearchView
 	private lateinit var appListView: RecyclerView
 	private lateinit var loadingView: View
 	private var appsLoading: AtomicBoolean = AtomicBoolean()
 	private var handler: Handler? = null
 	private val profile: Profile? = ShadowsocksApplication.app.currentProfile()
+	private var filterStr: String = ""
 
 	private fun initProxiedApps(str: String? = profile?.individual)
 	{
@@ -59,26 +63,7 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 		{
 			R.id.action_apply_all ->
 			{
-				val profiles = ShadowsocksApplication.app.profileManager.allProfiles
-				if (profiles.isNotEmpty() && profile != null)
-				{
-					proxiedAppString = profile.individual
-					val inProxiedApp = profile.proxyApps
-					val inBypass = profile.bypass
-					for (p in profiles)
-					{
-						p.individual = proxiedAppString
-						p.bypass = inBypass
-						p.proxyApps = inProxiedApp
-						ShadowsocksApplication.app.profileManager.updateProfile(p)
-					}
-					ToastUtils.showShort(R.string.action_apply_all)
-				}
-				else
-				{
-					ToastUtils.showShort(R.string.action_export_err)
-				}
-				return true
+				return applyAll()
 			}
 			R.id.action_export ->
 			{
@@ -149,6 +134,30 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 		return false
 	}
 
+	private fun applyAll(): Boolean
+	{
+		val profiles = ShadowsocksApplication.app.profileManager.allProfiles
+		if (profiles.isNotEmpty() && profile != null)
+		{
+			val proxiedAppString = profile.individual
+			val inProxiedApp = profile.proxyApps
+			val inBypass = profile.bypass
+			for (p in profiles)
+			{
+				p.individual = proxiedAppString
+				p.bypass = inBypass
+				p.proxyApps = inProxiedApp
+				ShadowsocksApplication.app.profileManager.updateProfile(p)
+			}
+			ToastUtils.showShort(R.string.action_apply_all)
+		}
+		else
+		{
+			ToastUtils.showShort(R.string.action_export_err)
+		}
+		return true
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?)
 	{
 		super.onCreate(savedInstanceState)
@@ -198,6 +207,39 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 			profile.bypass = isChecked
 			ShadowsocksApplication.app.profileManager.updateProfile(profile)
 		}
+
+		searchView = findViewById<SearchView>(R.id.searchView).apply {
+			setOnQueryTextListener(object : SearchView.OnQueryTextListener
+								   {
+									   override fun onQueryTextSubmit(query: String?): Boolean
+									   {
+										   return false
+									   }
+
+									   override fun onQueryTextChange(newText: String): Boolean
+									   {
+										   if (newText.isBlank())
+										   {
+											   filterStr = ""
+											   reloadApps()
+										   }
+										   else
+										   {
+											   filterStr = newText
+											   reloadApps()
+										   }
+										   return true
+									   }
+								   })
+
+			setOnCloseListener {
+				filterStr = ""
+				reloadApps()
+				false
+			}
+		}
+		searchView.setIconifiedByDefault(false)
+
 		initProxiedApps()
 		loadingView = findViewById(R.id.loading)
 		appListView = findViewById(R.id.applistview)
@@ -206,7 +248,6 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 
 		Thread { loadApps() }.start()
 	}
-
 
 	private fun reloadApps()
 	{
@@ -281,11 +322,14 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 				{
 					if (p.requestedPermissions != null)
 					{
-						val requestPermissions = listOf(*p.requestedPermissions)
+						val requestPermissions = listOf(*p.requestedPermissions!!)
 						if (requestPermissions.contains(Manifest.permission.INTERNET))
 						{
-							val app = ProxiedApp(pm.getApplicationLabel(p.applicationInfo).toString(), p.packageName, p.applicationInfo.loadIcon(pm))
-							cachedApps.add(app)
+							val app = p.applicationInfo?.let { pm.getApplicationLabel(it).toString() }?.let { ProxiedApp(it, p.packageName, p.applicationInfo!!.loadIcon(pm)) }
+							if (app != null)
+							{
+								cachedApps.add(app)
+							}
 						}
 					}
 				}
@@ -335,7 +379,8 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 			if (!appsLoading.get() && profile != null)
 			{
 				profile.individual = Utils.makeString(proxiedApps, "\n")
-				ShadowsocksApplication.app.profileManager.updateProfile(profile)
+				// ShadowsocksApplication.app.profileManager.updateProfile(profile)
+				applyAll()
 			}
 		}
 	}
@@ -346,7 +391,13 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 
 		init
 		{
-			val apps = getApps(packageManager)
+			var apps = getApps(packageManager)
+
+			if (filterStr.isNotBlank())
+			{
+				apps = apps.filter { it.name.contains(filterStr, ignoreCase = true) } as MutableList<ProxiedApp>
+			}
+
 			apps.sortWith(Comparator { a, b ->
 				val aProxied = proxiedApps.contains(a.packageName)
 				if (aProxied xor proxiedApps.contains(b.packageName))
@@ -356,7 +407,7 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 				else
 				{
 					val result = a.name.compareTo(b.name, ignoreCase = true) < 0
-					if (result) 1 else -1
+					if (result) -1 else 1
 				}
 			})
 			this.apps = apps

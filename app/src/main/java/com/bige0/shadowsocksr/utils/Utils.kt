@@ -113,7 +113,7 @@ object Utils
 
 	private fun getApplicationSignature(context: Context): List<String>
 	{
-		val signatureList: List<String>
+		var signatureList: List<String> = listOf()
 		try
 		{
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
@@ -121,22 +121,25 @@ object Utils
 				// New signature
 				val sig = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
 					.signingInfo
-				signatureList = if (sig.hasMultipleSigners())
+				if (sig != null)
 				{
-					// Send all with apkContentsSigners
-					sig.apkContentsSigners.map {
-						val digest = MessageDigest.getInstance("SHA")
-						digest.update(it.toByteArray())
-						Base64.encode(digest.digest())
+					signatureList = if (sig.hasMultipleSigners())
+					{
+						// Send all with apkContentsSigners
+						sig.apkContentsSigners.map {
+							val digest = MessageDigest.getInstance("SHA")
+							digest.update(it.toByteArray())
+							Base64.encode(digest.digest())
+						}
 					}
-				}
-				else
-				{
-					// Send one with signingCertificateHistory
-					sig.signingCertificateHistory.map {
-						val digest = MessageDigest.getInstance("SHA")
-						digest.update(it.toByteArray())
-						Base64.encode(digest.digest())
+					else
+					{
+						// Send one with signingCertificateHistory
+						sig.signingCertificateHistory.map {
+							val digest = MessageDigest.getInstance("SHA")
+							digest.update(it.toByteArray())
+							Base64.encode(digest.digest())
+						}
 					}
 				}
 			}
@@ -146,10 +149,13 @@ object Utils
 				@SuppressLint("PackageManagerGetSignatures")
 				val sig = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
 					.signatures
-				signatureList = sig.map {
-					val digest = MessageDigest.getInstance("SHA")
-					digest.update(it.toByteArray())
-					Base64.encode(digest.digest())
+				if (sig != null)
+				{
+					signatureList = sig.map {
+						val digest = MessageDigest.getInstance("SHA")
+						digest.update(it.toByteArray())
+						Base64.encode(digest.digest())
+					}
 				}
 			}
 
