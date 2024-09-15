@@ -94,7 +94,7 @@
     <string name="add_profile_nfc_hint_title">使用 Android Beam (NFC) 來新增設定檔</string>
     <string name="add_profile_nfc_hint">
     保持開啟兩個裝置的螢幕，在另一個裝置上，按一下設定檔的分享按鈕，將它們放在一起（背靠背）。\n您也可以掃描 NFC 標籤。</string>
-    <string name="add_profile_scanner_permission_required">掃描 QR 碼需要相機權限。</string>
+    <string name="add_profile_scanner_permission_required">没有相機權限。</string>
 
     <string name="acl_file">ACL 檔案網址</string>
     <string name="aclupdate">ACL 檔案升級</string>
