@@ -63,7 +63,7 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 		{
 			R.id.action_apply_all ->
 			{
-				return applyAll()
+				return applyAll(true)
 			}
 			R.id.action_export ->
 			{
@@ -134,7 +134,7 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 		return false
 	}
 
-	private fun applyAll(): Boolean
+	private fun applyAll(clickFromMenuItem: Boolean = true): Boolean
 	{
 		val profiles = ShadowsocksApplication.app.profileManager.allProfiles
 		if (profiles.isNotEmpty() && profile != null)
@@ -149,11 +149,13 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 				p.proxyApps = inProxiedApp
 				ShadowsocksApplication.app.profileManager.updateProfile(p)
 			}
-			ToastUtils.showShort(R.string.action_apply_all)
+			if (clickFromMenuItem) {
+				ToastUtils.showShort(R.string.action_apply_all_ok)
+			}
 		}
 		else
 		{
-			ToastUtils.showShort(R.string.action_export_err)
+			ToastUtils.showShort(R.string.action_apply_all_not_ok)
 		}
 		return true
 	}
@@ -379,8 +381,7 @@ class AppManager : AppCompatActivity(), Toolbar.OnMenuItemClickListener
 			if (!appsLoading.get() && profile != null)
 			{
 				profile.individual = Utils.makeString(proxiedApps, "\n")
-				// ShadowsocksApplication.app.profileManager.updateProfile(profile)
-				applyAll()
+				applyAll(false)
 			}
 		}
 	}

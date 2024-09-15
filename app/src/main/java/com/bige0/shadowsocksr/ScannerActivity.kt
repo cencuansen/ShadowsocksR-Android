@@ -19,6 +19,7 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler
 
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray)
 	{
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 		if (requestCode == MY_PERMISSIONS_REQUEST_CAMERA)
 		{
 			// If request is cancelled, the result arrays are empty.
@@ -70,7 +71,7 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler
 	override fun onResume()
 	{
 		super.onResume()
-		val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+		val permissionCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission_group.CAMERA)
 		if (permissionCheck == PackageManager.PERMISSION_GRANTED)
 		{
 			// Register ourselves as a handler for scan results.
@@ -81,7 +82,7 @@ class ScannerActivity : AppCompatActivity(), ZXingScannerView.ResultHandler
 		}
 		else
 		{
-			ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), MY_PERMISSIONS_REQUEST_CAMERA)
+			ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission_group.CAMERA), MY_PERMISSIONS_REQUEST_CAMERA)
 		}
 	}
 

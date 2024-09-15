@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="app_name">ShadowsocksR</string>
+    <string name="app_name">SSR</string>
     <string name="quick_toggle">開關</string>
 
     <string name="misc_cat">其他</string>
     <string name="proxy_cat">伺服器設定</string>
     <string name="profile_name">設定檔名稱</string>
+    <string name="now_server">当前服务</string>
     <string name="proxy">伺服器</string>
     <string name="remote_port">遠端連接埠</string>
     <string name="remote_port_summary">%d（遠端伺服器的連接埠號碼）</string>
@@ -56,7 +57,7 @@
     <string name="share">分享</string>
     <string name="share_message">掃描 QR 碼或者使用 Android Beam (NFC)</string>
     <string name="share_message_without_nfc">掃描 QR 碼</string>
-    <string name="share_message_nfc_disabled">掃描 QR 碼\nAndroid Beam 被停用</string>
+    <string name="share_message_nfc_disabled">掃描 QR 碼</string>
     <string name="turn_on_nfc">啟用 NFC &amp; Android Beam</string>
 
     <string name="udp_dns">UDP 轉送</string>
@@ -102,9 +103,11 @@
 
     <string name="aclupdate_downloading">檔案升級中…</string>
     <string name="aclupdate_successfully">檔案升級成功。</string>
-    <string name="aclupdate_failed">檔案升級失敗！</string>
+    <string name="aclupdate_failed">acl檔案升級失敗</string>
 
-    <string name="action_apply_all">套用設定至所有設定檔</string>
+    <string name="action_apply_all">套用至所有設定檔</string>
+    <string name="action_apply_all_ok">成功</string>
+    <string name="action_apply_all_not_ok">失败</string>
     <string name="action_export">匯出至剪貼簿</string>
     <string name="action_import">從剪貼簿匯入</string>
     <string name="action_export_msg">匯出至剪貼簿成功。</string>

@@ -55,7 +55,6 @@ class ProfileManagerActivity : AppCompatActivity(), View.OnClickListener, Toolba
 	private var nfcAdapter: NfcAdapter? = null
 	private var nfcShareItem: ByteArray? = null
 	private var isNfcAvailable: Boolean = false
-	private var isNfcBeamEnabled: Boolean = false
 
 	private var testProgressDialog: ProgressDialog? = null
 	private var isTesting: Boolean = false
@@ -261,15 +260,9 @@ class ProfileManagerActivity : AppCompatActivity(), View.OnClickListener, Toolba
 		menu = findViewById(R.id.menu)
 		menu.setClosedOnTouchOutside(true)
 		val dm = AppCompatDrawableManager.get()
-		val manualAddFAB = findViewById<FloatingActionButton>(R.id.fab_manual_add)
-		manualAddFAB.setImageDrawable(dm.getDrawable(this, R.drawable.ic_content_create))
-		manualAddFAB.setOnClickListener(this)
 		val qrCodeAddFAB = findViewById<FloatingActionButton>(R.id.fab_qrcode_add)
 		qrCodeAddFAB.setImageDrawable(dm.getDrawable(this, R.drawable.ic_image_camera_alt))
 		qrCodeAddFAB.setOnClickListener(this)
-		val nfcAddFAB = findViewById<FloatingActionButton>(R.id.fab_nfc_add)
-		nfcAddFAB.setImageDrawable(dm.getDrawable(this, R.drawable.ic_device_nfc))
-		nfcAddFAB.setOnClickListener(this)
 		val importAddFAB = findViewById<FloatingActionButton>(R.id.fab_import_add)
 		importAddFAB.setImageDrawable(dm.getDrawable(this, R.drawable.ic_content_paste))
 		importAddFAB.setOnClickListener(this)
@@ -320,20 +313,11 @@ class ProfileManagerActivity : AppCompatActivity(), View.OnClickListener, Toolba
 	{
 		when (v.id)
 		{
-			R.id.fab_manual_add ->
-			{
-				menu.toggle(true)
-				val profile = ShadowsocksApplication.app.profileManager.createProfile()
-				ShadowsocksApplication.app.profileManager.updateProfile(profile)
-				ShadowsocksApplication.app.switchProfile(profile.id)
-				finish()
-			}
 			R.id.fab_qrcode_add ->
 			{
 				menu.toggle(false)
 				qrCodeScan()
 			}
-			R.id.fab_nfc_add -> nfcAdd()
 			R.id.fab_import_add -> clipboardImportAdd()
 			R.id.fab_ssr_sub ->
 			{
@@ -344,26 +328,6 @@ class ProfileManagerActivity : AppCompatActivity(), View.OnClickListener, Toolba
 			{
 			}
 		}
-	}
-
-	private fun nfcAdd()
-	{
-		menu.toggle(true)
-		val dialog = AlertDialog.Builder(this@ProfileManagerActivity, R.style.Theme_Material_Dialog_Alert)
-			.setCancelable(true)
-			.setPositiveButton(R.string.gotcha, null)
-			.setTitle(R.string.add_profile_nfc_hint_title)
-			.create()
-		if (!isNfcBeamEnabled)
-		{
-			dialog.setMessage(getString(R.string.share_message_nfc_disabled))
-			dialog.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.turn_on_nfc)) { _, _ -> startActivity(Intent(Settings.ACTION_NFC_SETTINGS)) }
-		}
-		else
-		{
-			dialog.setMessage(getString(R.string.add_profile_nfc_hint))
-		}
-		dialog.show()
 	}
 
 	private fun clipboardImportAdd()
@@ -593,19 +557,10 @@ class ProfileManagerActivity : AppCompatActivity(), View.OnClickListener, Toolba
 	private fun updateNfcState()
 	{
 		isNfcAvailable = false
-		isNfcBeamEnabled = false
 		nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 		if (nfcAdapter != null)
 		{
 			isNfcAvailable = true
-			if (nfcAdapter!!.isEnabled)
-			{
-				if (nfcAdapter!!.isNdefPushEnabled)
-				{
-					isNfcBeamEnabled = true
-					nfcAdapter!!.setNdefPushMessageCallback(null, this@ProfileManagerActivity)
-				}
-			}
 		}
 	}
 
@@ -878,11 +833,6 @@ class ProfileManagerActivity : AppCompatActivity(), View.OnClickListener, Toolba
 			val shareBtn = itemView.findViewById<ImageView>(R.id.share)
 			shareBtn.setOnClickListener {
 				val url = item.toString()
-				if (isNfcBeamEnabled)
-				{
-					nfcAdapter!!.setNdefPushMessageCallback(this@ProfileManagerActivity, this@ProfileManagerActivity)
-					nfcShareItem = url.toByteArray(Charset.forName("UTF-8"))
-				}
 				val image = ImageView(this@ProfileManagerActivity)
 				image.layoutParams = LinearLayout.LayoutParams(-1, -1)
 				val qrCode = (QRCode.from(url).withSize(Utils.dpToPx(this@ProfileManagerActivity, 250), Utils.dpToPx(this@ProfileManagerActivity, 250)) as QRCode).bitmap()
@@ -895,20 +845,7 @@ class ProfileManagerActivity : AppCompatActivity(), View.OnClickListener, Toolba
 					.setView(image)
 					.setTitle(R.string.share)
 					.create()
-				if (!isNfcAvailable)
-				{
-					dialog.setMessage(getString(R.string.share_message_without_nfc))
-				}
-				else if (!isNfcBeamEnabled)
-				{
-					dialog.setMessage(getString(R.string.share_message_nfc_disabled))
-					dialog.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.turn_on_nfc)) { _, _ -> startActivity(Intent(Settings.ACTION_NFC_SETTINGS)) }
-				}
-				else
-				{
-					dialog.setMessage(getString(R.string.share_message))
-					dialog.setOnDismissListener { nfcAdapter!!.setNdefPushMessageCallback(null, this@ProfileManagerActivity) }
-				}
+
 				dialog.show()
 			}
 

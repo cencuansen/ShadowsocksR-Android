@@ -58,16 +58,6 @@
                 app:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/fab_manual_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:fab_colorNormal="@color/material_accent_500"
-                app:fab_colorPressed="@color/material_accent_700"
-                app:fab_colorRipple="@android:color/white"
-                app:fab_label="@string/add_profile_methods_manual_settings"
-                app:fab_size="mini" />
-
-            <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab_qrcode_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -75,16 +65,6 @@
                 app:fab_colorPressed="@color/material_accent_700"
                 app:fab_colorRipple="@android:color/white"
                 app:fab_label="@string/add_profile_methods_scan_qr_code"
-                app:fab_size="mini" />
-
-            <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/fab_nfc_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:fab_colorNormal="@color/material_accent_500"
-                app:fab_colorPressed="@color/material_accent_700"
-                app:fab_colorRipple="@android:color/white"
-                app:fab_label="NFC"
                 app:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton

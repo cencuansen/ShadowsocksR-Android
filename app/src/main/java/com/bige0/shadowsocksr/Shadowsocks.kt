@@ -279,7 +279,7 @@ class Shadowsocks : AppCompatActivity()
 	{
 		val toolbar = findViewById<Toolbar>(R.id.toolbar)
 		// non-translatable logo
-		toolbar.title = "shadowsocks R"
+		toolbar.title = "SSR"
 		toolbar.setTitleTextAppearance(toolbar.context, R.style.Toolbar_Logo)
 		try
 		{

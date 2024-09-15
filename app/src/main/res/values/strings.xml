@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- global/misc category -->
-    <string name="app_name">ShadowsocksR</string>
+    <string name="app_name">SSR</string>
     <string name="quick_toggle">Toggle</string>
     <string name="misc_cat">Misc</string>
     <string name="stat">Network Traffic</string>
@@ -18,6 +18,7 @@
     <string name="connection_test_error_status_code">Error code: #%d</string>
     <string name="proxy_cat">Server Settings</string>
     <string name="profile_name">Profile Name</string>
+    <string name="now_server">Now Server</string>
     <string name="proxy">Server</string>
     <string name="remote_port">Remote Port</string>
     <string name="remote_port_summary">%d (port number of the remote server)</string>
@@ -92,6 +93,8 @@
     <string name="share_message_nfc_disabled">Scan QR code\nAndroid Beam is disabled</string>
     <string name="turn_on_nfc">Turn on NFC &amp; Android Beam</string>
     <string name="action_apply_all">Apply Settings to All Profiles</string>
+    <string name="action_apply_all_ok">ok</string>
+    <string name="action_apply_all_not_ok">failed</string>
     <string name="action_export">Export to Clipboard</string>
     <string name="action_import">Import from Clipboard</string>
     <string name="action_export_msg">Successfully exported profiles.</string>

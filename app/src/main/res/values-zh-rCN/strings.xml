@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">ShadowsocksR</string>
+    <string name="app_name">SSR</string>
     <string name="quick_toggle">开关</string>
 
     <string name="misc_cat">其他</string>
     <string name="proxy_cat">服务器设置</string>
     <string name="profile_name">配置名称</string>
+    <string name="now_server">当前服务</string>
     <string name="proxy">服务器</string>
     <string name="remote_port">远程端口</string>
     <string name="remote_port_summary">%d（远程服务器的端口号）</string>
@@ -55,7 +56,7 @@
     <string name="share">分享</string>
     <string name="share_message">扫描二维码或使用 Android Beam (NFC)</string>
     <string name="share_message_without_nfc">扫描二维码</string>
-    <string name="share_message_nfc_disabled">扫描二维码\nAndroid Beam 被禁用</string>
+    <string name="share_message_nfc_disabled">扫描二维码</string>
     <string name="turn_on_nfc">打开 NFC &amp; Android Beam</string>
 
     <string name="dns">DNS</string>
@@ -87,7 +88,7 @@
     <string name="gotcha">好的！</string>
     <string name="copy_url">复制 URL</string>
     <string name="add_profile_dialog">为 ShadowsocksR 添加此配置文件？</string>
-    <string name="add_profile_methods_scan_qr_code">扫描二维码</string>
+    <string name="add_profile_methods_scan_qr_code">扫码导入</string>
     <string name="add_profile_methods_manual_settings">手动设置</string>
     <string name="add_profile_nfc_hint_title">使用 Android Beam (NFC) 来添加配置</string>
     <string name="add_profile_nfc_hint">保持两台设备的屏幕亮起，在另外一台设备上，点击配置文件的分享按钮，将它们靠在一起（背靠背）。\n你也可以扫描 NFC 标签。</string>
@@ -100,11 +101,13 @@
 
     <string name="aclupdate_downloading">文件更新中…</string>
     <string name="aclupdate_successfully">文件更新成功。</string>
-    <string name="aclupdate_failed">文件更新失败！</string>
+    <string name="aclupdate_failed">acl文件更新失败</string>
 
-    <string name="action_apply_all">应用设置到所有配置文件</string>
+    <string name="action_apply_all">应用到所有配置</string>
+    <string name="action_apply_all_ok">成功</string>
+    <string name="action_apply_all_not_ok">失败</string>
     <string name="action_export">导出至剪贴板</string>
-    <string name="action_import">从剪贴板导入</string>
+    <string name="action_import">粘贴导入</string>
     <string name="action_export_msg">导出至剪贴板成功。</string>
     <string name="action_export_err">导出至剪贴板失败！</string>
     <string name="action_import_msg">导入成功。</string>
@@ -130,7 +133,7 @@
     <string name="frontproxy_type">类型</string>
     <string name="frontproxy_set">前置代理</string>
 
-    <string name="add_profile_methods_ssr_sub">添加/更新 SSR 订阅</string>
+    <string name="add_profile_methods_ssr_sub">服务订阅</string>
     <string name="ssrsub_autoupdate_enable">自动更新</string>
     <string name="ssrsub_add">添加订阅地址</string>
     <string name="ssrsub_ok">确定并更新</string>

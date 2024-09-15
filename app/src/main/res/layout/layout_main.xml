@@ -87,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="marquee"
-                    android:text="▲"
+                    android:text="↑"
                     android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     app:layout_column="2" />
@@ -132,7 +132,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="marquee"
-                    android:text="▼"
+                    android:text="↓"
                     android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     app:layout_column="2"
@@ -187,6 +187,7 @@
             app:pressedTranslationZ="6dp"
             app:rippleColor="@color/material_blue_grey_700"
             app:srcCompat="@drawable/ic_start_idle"
-            tools:ignore="VectorDrawableCompat" />
+            tools:ignore="VectorDrawableCompat"
+            android:contentDescription="start" />
     </com.github.jorgecastilloprz.FABProgressCircle>
 </RelativeLayout>

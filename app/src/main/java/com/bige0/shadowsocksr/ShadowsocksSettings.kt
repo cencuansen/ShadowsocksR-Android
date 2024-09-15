@@ -17,16 +17,14 @@ import java.io.*
 import java.net.*
 import java.util.*
 
-//TODO:androidx
+// TODO:androidx
 @Suppress("DEPRECATION")
 class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener
 {
 	companion object
 	{
 		private const val TAG = "ShadowsocksSettings"
-
-		private val PROXY_PREFS = arrayOf(Constants.Key.group_name, Constants.Key.name, Constants.Key.host, Constants.Key.remotePort, Constants.Key.localPort, Constants.Key.password, Constants.Key.method, Constants.Key.protocol, Constants.Key.obfs, Constants.Key.obfs_param, Constants.Key.dns, Constants.Key.china_dns, Constants.Key.protocol_param)
-
+		private val PROXY_PREFS = arrayOf(Constants.Key.name, Constants.Key.dns, Constants.Key.china_dns)
 		private val FEATURE_PREFS = arrayOf(Constants.Key.route, Constants.Key.proxyApps, Constants.Key.udpdns, Constants.Key.ipv6)
 	}
 
@@ -43,6 +41,18 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 	private fun updateDropDownPreference(pref: Preference, value: String)
 	{
 		(pref as DropDownPreference).setValue(value)
+
+		val aclEnable = "self" == value
+		findPreference("aclupdate").isEnabled = aclEnable
+		if (aclEnable)
+		{
+			val fileExists = File(ShadowsocksApplication.app.applicationInfo.dataDir + '/'.toString() + "self.acl").exists()
+			val urlBlank = "" == preferenceManager.sharedPreferences.getString(Constants.Key.aclurl, "")
+			if (!fileExists && !urlBlank)
+			{
+				downloadAcl(preferenceManager.sharedPreferences.getString(Constants.Key.aclurl, ""))
+			}
+		}
 	}
 
 	private fun updatePasswordEditTextPreference(pref: Preference, value: String)
@@ -62,6 +72,11 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 		(pref as SummaryEditTextPreference).text = value
 	}
 
+	private fun updateProfileName(pref: Preference, value: String)
+	{
+		pref.setTitle(value)
+	}
+
 	private fun updateSwitchPreference(pref: Preference, value: Boolean)
 	{
 		(pref as SwitchPreference).isChecked = value
@@ -71,16 +86,8 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 	{
 		when (name)
 		{
-			Constants.Key.group_name -> updateSummaryEditTextPreference(pref, profile.url_group)
-			Constants.Key.name -> updateSummaryEditTextPreference(pref, profile.name)
-			Constants.Key.remotePort -> updateNumberPickerPreference(pref, profile.remotePort)
-			Constants.Key.localPort -> updateNumberPickerPreference(pref, profile.localPort)
-			Constants.Key.password -> updatePasswordEditTextPreference(pref, profile.password)
-			Constants.Key.method -> updateDropDownPreference(pref, profile.method)
-			Constants.Key.protocol -> updateDropDownPreference(pref, profile.protocol)
-			Constants.Key.protocol_param -> updateSummaryEditTextPreference(pref, profile.protocol_param)
-			Constants.Key.obfs -> updateDropDownPreference(pref, profile.obfs)
-			Constants.Key.obfs_param -> updateSummaryEditTextPreference(pref, profile.obfs_param)
+			Constants.Key.name -> updateProfileName(pref, profile.name)
+
 			Constants.Key.route -> updateDropDownPreference(pref, profile.route)
 			Constants.Key.proxyApps -> updateSwitchPreference(pref, profile.proxyApps)
 			Constants.Key.udpdns -> updateSwitchPreference(pref, profile.udpdns)
@@ -98,68 +105,10 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 
 		activity = getActivity() as Shadowsocks
 
-		findPreference(Constants.Key.group_name).setOnPreferenceChangeListener { _, value ->
-			currentProfile.url_group = value as String
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.name).setOnPreferenceChangeListener { _, value ->
-			currentProfile.name = value as String
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.host).setOnPreferenceClickListener {
-			val li = LayoutInflater.from(activity)
-			val myView = li.inflate(R.layout.layout_edittext, null)
-			val hostEditText = myView.findViewById<EditText>(R.id.editTextInput)
-			hostEditText.setText(currentProfile.host)
-			AlertDialog.Builder(activity)
-				.setView(myView)
-				.setTitle(getString(R.string.proxy))
-				.setPositiveButton(android.R.string.ok) { _, _ ->
-					currentProfile.host = hostEditText.text
-						.toString()
-					ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-				}
-				.setNegativeButton(android.R.string.no) { _, _ -> setProfile(currentProfile) }
-				.create()
-				.show()
-			true
-		}
-		findPreference(Constants.Key.remotePort).setOnPreferenceChangeListener { _, value ->
-			currentProfile.remotePort = value as Int
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.localPort).setOnPreferenceChangeListener { _, value ->
-			currentProfile.localPort = value as Int
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.password).setOnPreferenceChangeListener { _, value ->
-			currentProfile.password = value as String
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.method).setOnPreferenceChangeListener { _, value ->
-			currentProfile.method = value as String
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.protocol).setOnPreferenceChangeListener { _, value ->
-			currentProfile.protocol = value as String
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.protocol_param).setOnPreferenceChangeListener { _, value ->
-			currentProfile.protocol_param = value as String
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.obfs).setOnPreferenceChangeListener { _, value ->
-			currentProfile.obfs = value as String
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-		findPreference(Constants.Key.obfs_param).setOnPreferenceChangeListener { _, value ->
-			currentProfile.obfs_param = value as String
-			ShadowsocksApplication.app.profileManager.updateProfile(currentProfile)
-		}
-
 		findPreference(Constants.Key.route).setOnPreferenceChangeListener { _, value ->
 			if ("self" == value)
 			{
+				findPreference("aclupdate").isEnabled = true
 				val li = LayoutInflater.from(activity)
 				val myView = li.inflate(R.layout.layout_edittext, null)
 				val aclUrlEditText = myView.findViewById<EditText>(R.id.editTextInput)
@@ -189,6 +138,7 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 			else
 			{
 				ShadowsocksApplication.app.profileManager.updateAllProfileByString(Constants.Key.route, value as String)
+				findPreference("aclupdate").isEnabled = false
 			}
 			true
 		}
@@ -240,8 +190,8 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 
 		findPreference("aclupdate").setOnPreferenceClickListener {
 			ShadowsocksApplication.app.track(TAG, "aclupdate")
-			val url = preferenceManager.sharedPreferences
-				.getString(Constants.Key.aclurl, "")
+
+			val url = preferenceManager.sharedPreferences.getString(Constants.Key.aclurl, "")
 			if ("" == url)
 			{
 				AlertDialog.Builder(activity)
@@ -256,11 +206,6 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 				downloadAcl(url)
 			}
 			true
-		}
-
-		if (!File(ShadowsocksApplication.app.applicationInfo.dataDir + '/'.toString() + "self.acl").exists() && "" != preferenceManager.sharedPreferences.getString(Constants.Key.aclurl, ""))
-		{
-			downloadAcl(preferenceManager.sharedPreferences.getString(Constants.Key.aclurl, ""))
 		}
 
 		findPreference("about").setOnPreferenceClickListener {
@@ -361,13 +306,15 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 					prefsEdit.putInt("frontproxy_enable", 1)
 					if (!File(ShadowsocksApplication.app.applicationInfo.dataDir + "/proxychains.conf").exists())
 					{
-						val proxychainsConf = String.format(Locale.ENGLISH,
-															Constants.ConfigUtils.PROXYCHAINS,
-															prefs.getString("frontproxy_type", "socks5"),
-															prefs.getString("frontproxy_addr", ""),
-															prefs.getString("frontproxy_port", ""),
-															prefs.getString("frontproxy_username", ""),
-															prefs.getString("frontproxy_password", ""))
+						val proxychainsConf = String.format(
+							Locale.ENGLISH,
+							Constants.ConfigUtils.PROXYCHAINS,
+							prefs.getString("frontproxy_type", "socks5"),
+							prefs.getString("frontproxy_addr", ""),
+							prefs.getString("frontproxy_port", ""),
+							prefs.getString("frontproxy_username", ""),
+							prefs.getString("frontproxy_password", "")
+						)
 						Utils.printToFile(File(ShadowsocksApplication.app.applicationInfo.dataDir + "/proxychains.conf"), proxychainsConf, true)
 					}
 				}
@@ -398,8 +345,10 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 
 					if (File(ShadowsocksApplication.app.applicationInfo.dataDir + "/proxychains.conf").exists())
 					{
-						val proxychainsConf = String.format(Locale.ENGLISH, Constants.ConfigUtils.PROXYCHAINS,
-															prefs.getString("frontproxy_type", "socks5"), prefs.getString("frontproxy_addr", ""), prefs.getString("frontproxy_port", ""), prefs.getString("frontproxy_username", ""), prefs.getString("frontproxy_password", ""))
+						val proxychainsConf = String.format(
+							Locale.ENGLISH, Constants.ConfigUtils.PROXYCHAINS,
+							prefs.getString("frontproxy_type", "socks5"), prefs.getString("frontproxy_addr", ""), prefs.getString("frontproxy_port", ""), prefs.getString("frontproxy_username", ""), prefs.getString("frontproxy_password", "")
+						)
 						Utils.printToFile(File(ShadowsocksApplication.app.applicationInfo.dataDir + "/proxychains.conf"), proxychainsConf, true)
 					}
 				}
@@ -413,10 +362,12 @@ class ShadowsocksSettings : PreferenceFragment(), SharedPreferences.OnSharedPref
 
 	private fun downloadAcl(url: String?)
 	{
-		val progressDialog = ProgressDialog.show(activity,
-												 getString(R.string.aclupdate),
-												 getString(R.string.aclupdate_downloading),
-												 false, false)
+		val progressDialog = ProgressDialog.show(
+			activity,
+			getString(R.string.aclupdate),
+			getString(R.string.aclupdate_downloading),
+			false, false
+		)
 
 		ShadowsocksApplication.app.mThreadPool.execute {
 			Looper.prepare()
