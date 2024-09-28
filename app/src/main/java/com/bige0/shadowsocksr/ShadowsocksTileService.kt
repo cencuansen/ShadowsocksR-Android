@@ -99,14 +99,7 @@ class ShadowsocksTileService : TileService()
 	override fun onClick()
 	{
 		super.onClick()
-		if (isLocked)
-		{
-			unlockAndRun { toggle() }
-		}
-		else
-		{
-			toggle()
-		}
+		toggle()
 	}
 
 	private fun toggle()
